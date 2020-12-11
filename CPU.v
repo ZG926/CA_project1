@@ -291,20 +291,20 @@ Forward_Unit Forward_Unit(
     .Forward_B_o    (ForwardB)      
 );
 
-Forward_MUX Forward_MUX(      //for ForwardA    //top MUX4    ok
-    .read_data_i    (IDEX_RS1data),         //read_data1 00
-    .WB_Write_Data_i(WB_Write_Data),         //01
-    .MEM_ALU_Result (EXMEM_ALU_data),         //10
-    .select_i       (ForwardA),         //from Forwarding Unit
-    .mux_o          (muxA_o)          //mux output -> alu
+Forward_MUX Forward_MUX(      
+    .read_data_i    (IDEX_RS1data),    
+    .WB_Write_Data_i(WB_Write_Data),    
+    .MEM_ALU_Result (EXMEM_ALU_data),       
+    .select_i       (ForwardA),       
+    .mux_o          (muxA_o)        
 );    
 
-Forward_MUX Forward_MUX(      //for ForwardB     //bottom MUX4    ok
-    .read_data_i    (IDEX_RS2data),         //read_data1 00
-    .WB_Write_Data_i(WB_Write_Data),         //01
-    .MEM_ALU_Result (EXMEM_ALU_data),         //10
-    .select_i       (ForwardB),         //from Forwarding Unit
-    .mux_o          (muxB_o)          //mux output -> center mux32 & EX/MEM 
+Forward_MUX Forward_MUX(     
+    .read_data_i    (IDEX_RS2data),       
+    .WB_Write_Data_i(WB_Write_Data),      
+    .MEM_ALU_Result (EXMEM_ALU_data),        
+    .select_i       (ForwardB),        
+    .mux_o          (muxB_o)         
 );    
 ////////////////////////////////////////////////////////
 endmodule
