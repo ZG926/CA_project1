@@ -16,9 +16,45 @@ wire    [1:0]       ALUOp;
 wire    [3:0]       ALUCtrl;
 wire                RegWrite,ALUSrc;
 
+//Added Wire
+wire flush;                 
+wire stall;                
+
+wire MemtoReg;    
+wire MemRead;      
+wire MemWrite;     
+wire Branch;            
+
+wire NoOp;              
+wire PCWrite;           
+
+wire ForwardA, ForwardB;  
+wire [31:0] muxA_o,muxB_o;       
+
+//wires needed for ID/EX
+wire IDEX_ALUSrc, IDEX_RegWrite, IDEX_MemWrite, IDEX_MemRead, IDEX_MemtoReg;
+wire [31:0] IDEX_RS1data, IDEX_RS2data, IDEX_Sign_Extend_data;
+wire [4:0]  ExRs1, ExRs2;                                   
+wire [9:0]  IDEX_instr[31:25,14:12];                                  
+wire [4:0]  IDEX_instr[11:7];                                 
+wire [1:0]  IDEX_ALUOp;  
+
+//wires needed for EX/MEM 
+wire EXMEM_RegWrite, EXMEM_MemtoReg;
+wire [31:0] EXMEM_ALU_data;
+wire EXMEM_MemRead, EXMEM_MemWrite;
+wire [31:0] EXMEM_muxB_o;
+wire [4:0] EXMEM_IDEX_instr[11:7];
+
+//wires needed in MEM/WB
+wire [31:0] MEMWB_EXMEM_ALU_data; 
+wire MEMWB_RegWrite,MEMWB_MemtoReg;
+wire [4:0] MEMWB_EXMEM_IDEX_instr[11:7];
+wire [31:0] MEMWB_Data_Memory_result;
+///////////////////////
+
 assign Four = 32'd4;
 
-// Unchanged (10/12 JT)
 Adder PC_Adder(
     .data1_in       (instr_addr),       
     .data2_in       (Four),            
@@ -34,17 +70,17 @@ Registers Registers(
     .clk_i          (clk_i),    
     .RS1addr_i      (instr[19:15]),         
     .RS2addr_i      (instr[24:20]),         
-    .RDaddr_i       (instr[11:7]),         
+    .RDaddr_i       (MEMWB_EXMEM_IDEX_instr[11:7]),         
     .RDdata_i       (ALU_data),            
     .RegWrite_i     (RegWrite),             
     .RS1data_o      (RS1data),              
     .RS2data_o      (RS2data)               
 );
 
-MUX32 MUX_ALUSrc(
-    .data1_i        (RS2data),          
-    .data2_i        (Sign_Extend_data),    
-    .select_i       (ALUSrc),               
+MUX32 MUX_ALUSrc(   
+    .data1_i        (muxB_o),          
+    .data2_i        (IDEX_Sign_Extend_data),    
+    .select_i       (IDEX_ALUSrc),               
     .data_o         (Mux_data)              
 );
 
@@ -61,32 +97,31 @@ ALU_Control ALU_Control(
     .ALUCtrl_o      (ALUCtrl)                       
 );
 
-// Changed & Need Connect Wire (10/12 JT)
 PC PC(
     .clk_i          (clk_i),     
     .rst_i          (rst_i),     
     .start_i        (start_i),  
-    .PCWrite_i      (),   
+    .PCWrite_i      (PCWrite),   
     .pc_i           (next_instr_addr),     
     .pc_o           (instr_addr)           
 );
 
 Control Control(
     .Op_i           (instr[31:0]),       
-    .NoOp_i         (), 
+    .NoOp_i         (NoOp), 
     .RegWrite_o     (RegWrite),
-    .MemtoReg_o     (),
-    .MemRead_o      (),
-    .MemWrite_o     (),
+    .MemtoReg_o     (MemtoReg),
+    .MemRead_o      (MemRead),
+    .MemWrite_o     (MemWrite),
     .ALUOp_o        (ALUOp),    
     .ALUSrc_o       (ALUSrc),
-    .Branch_o       ()
+    .Branch_o       (Branch)
 );
 
 Sign_Extend Sign_Extend(
     .data_i         (instr[31:0]),        
-    .MemWrite_i     (),
-    .Branch_i       (),                       
+    .MemWrite_i     (MemWrite),    //need to rename (?)
+    .Branch_i       (Branch),      // need to rename (?)   
     .data_o         (Sign_Extend_data) 
 );
 
@@ -94,144 +129,183 @@ Sign_Extend Sign_Extend(
 
 // *************** Load/Store *************** //
 Data_Memory Data_Memory(
-    .clk_i          (),
-    .addr_i         (),
-    .MemRead_i      (),
-    .MemWrite_i     (),
-    .data_i         (),
-    .data_o         ()
+    .clk_i          (clk_i),
+    .addr_i         (EXMEM_ALU_data),
+    .MemRead_i      (EXMEM_MemRead),
+    .MemWrite_i     (EXMEM_MemWrite),
+    .data_i         (EXMEM_muxB_o),
+    .data_o         (Data_Memory_result)
 );
 
-MUX32 MUX_MemtoReg(
-    .data1_i        (),          
-    .data2_i        (),    
-    .select_i       (),               
-    .data_o         ()              
+MUX32 MUX_MemtoReg(     
+    .data1_i        (MEMWB_EXMEM_ALU_data),          
+    .data2_i        (MEMWB_Data_Memory_result),    
+    .select_i       (MEMWB_MemToReg),               
+    .data_o         (ALU_data)              
 );
 
 // *************** Pipeline Register *************** //
 
 Register_IFID IFID(
-    .clk_i          (),
-    .start_i        (),
+    .clk_i          (clk_i),
+    .start_i        (start_i),     
 
     // PC & HAzard & Instruction
-    .pc_i           (),
-    .Stall_i        (),
-    .Flush_i        (),
-    .instr_i        (),
+    .pc_i           (instr_addr),
+    .Stall_i        (stall),
+    .Flush_i        (flush),
+    .instr_i        (instr[31:0]),
 
-    .pc_o           (),
-    .instr_o        ()
+    .pc_o           (IFID_instr_addr),
+    .instr_o        (IFID_instr[31:0])
 );
 
 Register_IDEX IDEX(
-    .clk_i              (),
-    .start_i            (),
+    .clk_i          (clk_i),
+    .start_i        (start_i),     
 
     // Instruction & Data
-    .RS1Data_i          (),
-    .RS2Data_i          (),
-    .SignExtended_i     (),
-    .funct_i            (),     // 10bits instr[31:25,14:12]    funct 3 and funct 7  
-    .RS1_Addr_i         (),     // 5 bits instr[19:15]          rs1                     
-    .RS2_Addr_i         (),     // 5 bits instr[24:20]          rs2                     
-    .Rd_Addr_i          (),      // 5 bits instr[11:7]           rd
+    .RS1Data_i          (RS1data),
+    .RS2Data_i          (RS2data),
+    .SignExtended_i     (Sign_Extend_data),
+    .funct_i            (instr[31:25,14:12]),     // 10bits instr[31:25,14:12]    funct 3 and funct 7  
+    .RS1_Addr_i         (instr[19:15]),     // 5 bits instr[19:15]          rs1                     
+    .RS2_Addr_i         (instr[24:20]),     // 5 bits instr[24:20]          rs2                     
+    .Rd_Addr_i          (instr[11:7]),      // 5 bits instr[11:7]           rd
 
-    .RS1Data_o          (),
-    .RS2Data_o          (),
-    .SignExtended_o     (),
-    .funct_o            (),
-    .RS1_Addr_o         (),     
-    .RS2_Addr_o         (),
-    .Rd_Addr_o          (),
+    .RS1Data_o          (IDEX_RS1data),
+    .RS2Data_o          (IDEX_RS2data),
+    .SignExtended_o     (IDEX_Sign_Extend_data),
+    .funct_o            (IDEX_instr[31:25,14:12]),
+    .RS1_Addr_o         (ExRs1),     
+    .RS2_Addr_o         (ExRs2),
+    .Rd_Addr_o          (IDEX_instr[11:7]),
 
     // Control 
-    .RegWrite_i         (), 
-    .MemToReg_i         (),
-    .MemRead_i          (), 
-    .MemWrite_i         (), 
-    .ALUOp_i            (),   
-    .ALUSrc_i           (),   
+    .RegWrite_i         (RegWrite), 
+    .MemToReg_i         (MemtoReg),
+    .MemRead_i          (MemRead), 
+    .MemWrite_i         (MemWrite), 
+    .ALUOp_i            (ALUOp),   
+    .ALUSrc_i           (ALUSrc),   
 
-    .RegWrite_o         (),
-    .MemToReg_o         (),
-    .MemRead_o          (),
-    .MemWrite_o         (),
-    .ALUOp_o            (),
-    .ALUSrc_o           ()
+    .RegWrite_o         (IDEX_RegWrite),
+    .MemToReg_o         (IDEX_MemtoReg),
+    .MemRead_o          (IDEX_MemRead),
+    .MemWrite_o         (IDEX_MemWrite),
+    .ALUOp_o            (IDEX_ALUOp),
+    .ALUSrc_o           (IDEX_ALUSrc)
 );
 
 Register_EXMEM EXMEM(
-    .clk_i              (),
-    .start_i            (),
+    .clk_i          (clk_i),
+    .start_i        (start_i),     //not sure this line need or not
 
     // Instruction & Data
-    .ALU_Result_i       (),
-    .Write_Data_i       (),
-    .Rd_Addr_i          (),
+    .ALU_Result_i       (ALU_data),
+    .Write_Data_i       (muxB_o),
+    .Rd_Addr_i          (IDEX_instr[11:7]),
 
-    .ALU_Result_o       (),
-    .Write_Data_o       (),
-    .Rd_Addr_o          (),
+    .ALU_Result_o       (EXMEM_ALU_data),
+    .Write_Data_o       (EXMEM_muxB_o),
+    .Rd_Addr_o          (EXMEM_IDEX_instr[11:7]),
 
     // Control 
-    .RegWrite_i         (),
-    .MemToReg_i         (),
-    .MemRead_i          (),  
-    .MemWrite_i         (), 
+    .RegWrite_i         (IDEX_RegWrite),
+    .MemToReg_i         (IDEX_MemToReg),
+    .MemRead_i          (IDEX_MemRead),  
+    .MemWrite_i         (IDEX_MemWrite), 
 
-    .RegWrite_o         (), 
-    .MemToReg_o         (), 
-    .MemRead_o          (),  
-    .MemWrite_o         ()
+    .RegWrite_o         (EXMEM_RegWrite), 
+    .MemToReg_o         (EXMEM_MemToReg), 
+    .MemRead_o          (EXMEM_MemRead),  
+    .MemWrite_o         (EXMEM_MemWrite)
 );
 
 Register_MEMWB MEMWB(
-    .clk_i              (),
-    .start_i            (),
+    .clk_i          (clk_i),
+    .start_i        (start_i),     //not sure this one need or not
 
     // Address & Data & Instruction  
-    .MemAddr_i          (),
-    .MemRead_Data_i     (),
-    .Rd_Addr_i          (),
+    .MemAddr_i          (EXMEM_ALU_data),
+    .MemRead_Data_i     (Data_Memory_result),
+    .Rd_Addr_i          (EXMEM_IDEX_instr[11:7]),
 
-    .MemAddr_o          (),
-    .MemRead_Data_o     (),
-    .Rd_Addr_o          (),
+    .MemAddr_o          (MEMWB_EXMEM_ALU_data),
+    .MemRead_Data_o     (MEMWB_Data_Memory_result),
+    .Rd_Addr_o          (MEMWB_EXMEM_IDEX_instr[11:7]),
 
     //Control 
-    .RegWrite_i         (),
-    .MemToReg_i         (),
+    .RegWrite_i         (EXMEM_RegWrite),
+    .MemToReg_i         (EXMEM_MemToReg),
 
-    .RegWrite_o         (),
-    .MemToReg_o         ()
+    .RegWrite_o         (MEMWB_RegWrite),
+    .MemToReg_o         (MEMWB_MemToReg)
 );
 
 // *************** Branch *************** //
 Equal Equal(
-    .data1_i    (),
-    .data2_i    (),
-    .equal_o    ()
+    .data1_i    (RS1data),
+    .data2_i    (RS2data),
+    .equal_o    (Equal_result)
 );
 
 Shift_Left ShiftLeft(
-    .data_i     (), 
-    .data_o     ()
+    .data_i     (Sign_Extend_data), 
+    .data_o     (instr_addr)
 );
 
 Adder Branch_Adder(
     .data1_in       (instr_addr),       
-    .data2_in       (),            
+    .data2_in       (IFID_instr_addr),            
     .data_o         (next_instr_addr)   
 );
 
-MUX32 MUX_PC(
-    .data1_i        (),          
-    .data2_i        (),    
-    .select_i       (),               
-    .data_o         ()              
+MUX32 MUX_PC(       //left mux32
+    .data1_i        (next_instr_addr),          
+    .data2_i        (next_instr_addr),    
+    .select_i       (flush),               
+    .data_o         (next_instr_addr)              
 );
 
+
+Hazard_Detection_Unit Hazard_Detection_Unit(
+    .MemRead_i (IDEX_MemRead),   
+    .RDaddr_i  (IDEX_instr[11:7]),    
+    .IFID_RS_i (IFID_instr[19:15]), 
+    .IFID_RT_i (IFID_instr[24:20]), 
+    .No_Op_o   (NoOp),         
+    .PCWrite_o (PCWrite),       
+    .Stall_o   (stall)          
+);
+
+Forward_Unit Forward_Unit(
+    //from ID/EX
+    .EX_Rs1_i       (ExRs1),
+    .EX_Rs2_i       (ExRs1),
+    .WB_Rd_i        (MEMWB_EXMEM_IDEX_instr[11:7]),      
+    .WB_RegWrite_i  (MEMWB_RegWrite),
+    .MEM_Regwrite_i (EXMEM_RegWrite),    
+    .MEM_Rd_i       (EXMEM_IDEX_instr[11:7]),     
+    .Forward_A_o    (ForwardA),     
+    .Forward_B_o    (ForwardB)      
+);
+
+Forward_MUX Forward_MUX(      //for ForwardA    //top MUX4    ok
+    .read_data_i    (IDEX_RS1data),         //read_data1 00
+    .WB_Write_Data_i(WB_Write_Data),         //01
+    .MEM_ALU_Result (EXMEM_ALU_data),         //10
+    .select_i       (ForwardA),         //from Forwarding Unit
+    .mux_o          (muxA_o)          //mux output -> alu
+);    
+
+Forward_MUX Forward_MUX(      //for ForwardB     //bottom MUX4    ok
+    .read_data_i    (IDEX_RS2data),         //read_data1 00
+    .WB_Write_Data_i(WB_Write_Data),         //01
+    .MEM_ALU_Result (EXMEM_ALU_data),         //10
+    .select_i       (ForwardB),         //from Forwarding Unit
+    .mux_o          (muxB_o)          //mux output -> center mux32 & EX/MEM 
+);    
+////////////////////////////////////////////////////////
 endmodule
 
