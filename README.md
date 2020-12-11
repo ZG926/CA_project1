@@ -30,18 +30,20 @@ MUX32_4.v            MUX32_4
 ** Adder 會用到兩次(PC + 4 , PC + immediate)
 
 ```
- 有提到會重複利用的module，就用同一個module，但名字必須不同
+
  
 ## 如何寫CPU.v的接線
 格式
 ```
-[module name] [actual Unit neme](
+[module name] [call name](
     .[io_wire_name1 in the module] (wire1 from outside)
     .[io_wire_name2 in the module] (wire2 from outside)
     .[io_wire_name3 in the module] (wire3 from outside)
     以此類推
 );
-
+```
+「使用同一module寫出多個Control Unit」概念解釋
+```
 這裏面的module_name就好像C裏面的
 struct list{
 
@@ -52,7 +54,8 @@ struct list first_list;
 struct list second_list;
 
 ```
-example
+若有多個control unit可用同一module實作（eg. MUX），就用同一個module，但名字必須不同
+example 
 ```
 MUX32 MUX_ALUSrc(
     .data1_i        (RS2data),          
@@ -68,15 +71,12 @@ MUX32 MUX_MemtoReg(
     .data_o         ()              
 );
 
-
-  		
 MUX32 MUX_PC(
     .data1_i        (),          
     .data2_i        (),    
     .select_i       (),               
     .data_o         ()              
 );
-
 ```
 
  
