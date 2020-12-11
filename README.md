@@ -1,5 +1,8 @@
 # CA_project1
 
+## Hackmd
+https://hackmd.io/BkSvgvxdQL2wT-pt1-aoCw?view
+
  CPU.v 裏面的module name照著我在Hackmd裏面寫的改， 至於各個module裏面的 .input_i() 和 .output_o() 你可以開我們寫好的module.v去查
  ## CPU.v Module 名稱
 ```
