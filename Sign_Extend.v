@@ -14,7 +14,7 @@ output 	[31:0] 		data_o;
 reg 	[31:0]		data_i;
 reg 	[31:0] 		data_o;
 
-	always @ (data_i or MemWrite_i or Branch_i) begin
+always @ (data_i or MemWrite_i or Branch_i) begin
 	// Store
 	if (MemWrite_i) begin
 		data_o = $signed({{20{data_i[31]}},data_i[31:25],data_i[11:7]});

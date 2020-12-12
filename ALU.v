@@ -6,9 +6,9 @@
 `define MUL 	4'b0101
 `define ADDI 	4'b0110
 `define SRAI 	4'b0111
-`define LW		4'b0011 	// Load use ADD for Addressing
-`define SW		4'b0011 	// Store use ADD for Addressing
-`define BEQ		4'b0100 	// No Branch Operation in ALU
+`define LW		4'b1000 	// Load use ADD for Addressing
+`define SW		4'b1001 	// Store use ADD for Addressing
+`define BEQ		4'b1010 	// No Branch Operation in ALU
 
 
 module ALU(
