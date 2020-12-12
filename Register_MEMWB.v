@@ -24,13 +24,13 @@ input 	[31:0] 		MemAddr_i,MemRead_Data_i;
 input 	[4:0]		Rd_Addr_i;
 input RegWrite_i, MemToReg_i;
 
-output 	[31:0] 		MemAddr_i,MemRead_Data_i;
-output 	[4:0]		Rd_Addr_i;
-output RegWrite_i, MemToReg_i;
+output 	[31:0] 		MemAddr_o,MemRead_Data_o;
+output 	[4:0]		Rd_Addr_o;
+output RegWrite_o, MemToReg_o;
 
-reg 	[31:0] 		MemAddr_i,MemRead_Data_i;
-reg 	[4:0]		Rd_Addr_i;
-reg RegWrite_i, MemToReg_i;
+reg 	[31:0] 		MemAddr_o,MemRead_Data_o;
+reg 	[4:0]		Rd_Addr_o;
+reg RegWrite_o, MemToReg_o;
 
 
 
