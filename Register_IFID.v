@@ -41,5 +41,4 @@ always @(posedge clk_i) begin
 		pc_o <= pc_o; 
 	end
 end
-
 endmodule
