@@ -54,5 +54,4 @@ always @(posedge clk_i) begin
 
 	end
 end
-
 endmodule
