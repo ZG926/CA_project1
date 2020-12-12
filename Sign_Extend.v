@@ -11,7 +11,6 @@ input MemWrite_i, Branch_i;
 
 output 	[31:0] 		data_o;
 
-reg 	[31:0]		data_i;
 reg 	[31:0] 		data_o;
 
 always @ (data_i or MemWrite_i or Branch_i) begin
