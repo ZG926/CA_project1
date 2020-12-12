@@ -44,36 +44,36 @@ initial begin
 
     // TODO: initialize your pipeline registers
     
-    IFID.pc_o               = 32'b0;
-    IFID.instr_o            = 32'b0;
+    CPU.IFID.pc_o               = 32'b0;
+    CPU.IFID.instr_o            = 32'b0;
 
-    IDEX.RS1Data_o          = 32'b0;
-    IDEX.RS2Data_o          = 32'b0;
-    IDEX.SignExtended_o     = 32'b0;
-    IDEX.funct_o            = 10'b0;
-    IDEX.RS1_Addr_o         = 5'b0;
-    IDEX.RS2_Addr_o         = 5'b0;
-    IDEX.Rd_Addr_o          = 5'b0;
-    IDEX.RegWrite_o         = 1'b0;
-    IDEX.MemToReg_o         = 1'b0;
-    IDEX.MemRead_o          = 1'b0;
-    IDEX.MemWrite_o         = 1'b0;
-    IDEX.ALUOp_o            = 2'b0;
-    IDEX.ALUSrc_o           = 1'b0;
+    CPU.IDEX.RS1Data_o          = 32'b0;
+    CPU.IDEX.RS2Data_o          = 32'b0;
+    CPU.IDEX.SignExtended_o     = 32'b0;
+    CPU.IDEX.funct_o            = 10'b0;
+    CPU.IDEX.RS1_Addr_o         = 5'b0;
+    CPU.IDEX.RS2_Addr_o         = 5'b0;
+    CPU.IDEX.Rd_Addr_o          = 5'b0;
+    CPU.IDEX.RegWrite_o         = 1'b0;
+    CPU.IDEX.MemToReg_o         = 1'b0;
+    CPU.IDEX.MemRead_o          = 1'b0;
+    CPU.IDEX.MemWrite_o         = 1'b0;
+    CPU.IDEX.ALUOp_o            = 2'b0;
+    CPU.IDEX.ALUSrc_o           = 1'b0;
 
-    EXMEM.ALU_Result_o      = 32'b0;
-    EXMEM.Write_Data_o      = 32'b0;
-    EXMEM.Rd_Addr_o         = 5'b0;
-    EXMEM.RegWrite_o        = 1'b0;
-    EXMEM.MemToReg_o        = 1'b0;
-    EXMEM.MemRead_o         = 1'b0;
-    EXMEM.MemWrite_o        = 1'b0;
+    CPU.EXMEM.ALU_Result_o      = 32'b0;
+    CPU.EXMEM.MemWrite_Data_o   = 32'b0;
+    CPU.EXMEM.Rd_Addr_o         = 5'b0;
+    CPU.EXMEM.RegWrite_o        = 1'b0;
+    CPU.EXMEM.MemToReg_o        = 1'b0;
+    CPU.EXMEM.MemRead_o         = 1'b0;
+    CPU.EXMEM.MemWrite_o        = 1'b0;
 
-    MEMWB.MemAddr_o         = 32'b0;
-    MEMWB.MemRead_Data_o    = 32'b0;
-    MEMWB.Rd_Addr_o         = 5'b0;
-    MEMWB.RegWrite_o        = 1'b0;
-    MEMWB.MemToReg_o        = 1'b0;
+    CPU.MEMWB.ALU_Result_o      = 32'b0;
+    CPU.MEMWB.MemRead_Data_o    = 32'b0;
+    CPU.MEMWB.Rd_Addr_o         = 5'b0;
+    CPU.MEMWB.RegWrite_o        = 1'b0;
+    CPU.MEMWB.MemtoReg_o        = 1'b0;
     
     // Load instructions into instruction memory
     // Make sure you change back to "instruction.txt" before submission
