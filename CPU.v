@@ -35,7 +35,7 @@ wire [31:0] muxA_o,muxB_o;
 wire IDEX_ALUSrc, IDEX_RegWrite, IDEX_MemWrite, IDEX_MemRead, IDEX_MemtoReg;
 wire [31:0] IDEX_RS1data, IDEX_RS2data, IDEX_Sign_Extend_data;
 wire [4:0]  ExRs1, ExRs2;                                   
-wire [9:0]  IDEX_instr[31:25,14:12];                                  
+//wire [9:0]  IDEX_instr[31:25],14:12];                                  
 wire [4:0]  IDEX_instr[11:7];                                 
 wire [1:0]  IDEX_ALUOp;  
 
