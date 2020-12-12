@@ -23,7 +23,7 @@ output RegWrite_o, MemtoReg_o, MemRead_o, MemWrite_o, ALUSrc_o, Branch_o;
 output 	[1:0]		ALUOp_o;
 
 reg RegWrite_o, MemtoReg_o, MemRead_o, MemWrite_o, ALUSrc_o, Branch_o;
-reg 	[1:0]		ALUOp_o
+reg 	[1:0]		ALUOp_o;
 
 always @(Op_i or NoOp_i) begin
 	// Phase 1.4
