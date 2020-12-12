@@ -1,14 +1,14 @@
 module Register_IFID(
 	clk_i,
 	start_i,
-
-    pc_i,
+	
+	pc_i,
 	Stall_i,
-	Flush_i
-    instr_i,
-    
-    pc_o,
-    instr_o
+	Flush_i,
+	instr_i,
+
+	pc_o,
+	instr_o
 );
 
 input			clk_i,start_i;
