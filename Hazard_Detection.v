@@ -3,9 +3,9 @@ module Hazard_Detection
     RS1addr_i,
     RS2addr_i,
     MemRead, 
-    funct_bit,
+    rd,
     PCWrite,
-    stall,
+    Stall_o,
     NoOp
 );
 
@@ -15,28 +15,28 @@ input   [4:0]       RS2addr_i;
 input MemRead;
 input [4:0] rd;
 output PCWrite;
-output stall;
+output Stall_o;
 output NoOp;
 reg PCWrite;
-reg stall;
+reg Stall_o;
 reg NoOp;
 always @(RS1addr_i or RS2addr_i or MemRead or rd)
 begin
 	if (rd == RS1addr_i)begin
 		PCWrite <= 0;
-		stall <= 1;
+		Stall_o <= 1;
 		NoOp <= 1;
 		////$display(data_o);
 	end
 	else if (rd == RS2addr_i) begin
 		PCWrite <= 0;
-		stall <= 1;
+		Stall_o <= 1;
 		NoOp <= 1;
 		////$display(data_o);
 	end
 	else begin
 		PCWrite <= 1;
-		stall <= 0;
+		Stall_o <= 0;
 		NoOp <= 0;
 	end
 	

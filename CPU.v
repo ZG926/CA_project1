@@ -28,7 +28,7 @@ wire Branch;
 wire NoOp;              
 wire PCWrite;           
 
-wire ForwardA, ForwardB;  
+wire [1:0] ForwardA, ForwardB;  
 wire [31:0] muxA_o,muxB_o;       
 
 //wires needed for ID/EX
@@ -107,7 +107,7 @@ PC PC(
 );
 
 Control Control(
-    .Op_i           (instr[31:0]),       
+    .Op_i           (instr[6:0]),       
     .NoOp_i         (NoOp), 
     .RegWrite_o     (RegWrite),
     .MemtoReg_o     (MemtoReg),
@@ -145,6 +145,8 @@ MUX32 MUX_MemtoReg(
 );
 
 // *************** Pipeline Register *************** //
+wire [31:0] IFID_instr;
+wire [31:0] IFID_instr_addr;
 
 Register_IFID IFID(
     .clk_i          (clk_i),
@@ -157,7 +159,7 @@ Register_IFID IFID(
     .instr_i        (instr[31:0]),
 
     .pc_o           (IFID_instr_addr),
-    .instr_o        (IFID_instr[31:0])
+    .instr_o        (IFID_instr)
 );
 
 Register_IDEX IDEX(
@@ -168,7 +170,7 @@ Register_IDEX IDEX(
     .RS1Data_i          (RS1data),
     .RS2Data_i          (RS2data),
     .SignExtended_i     (Sign_Extend_data),
-    .funct_i            (instr[31:25,14:12]),     // 10bits instr[31:25,14:12]    funct 3 and funct 7  
+    .funct_i            ({instr[31:25],instr[14:12]}),     // 10bits instr[31:25,14:12]    funct 3 and funct 7  
     .RS1_Addr_i         (instr[19:15]),     // 5 bits instr[19:15]          rs1                     
     .RS2_Addr_i         (instr[24:20]),     // 5 bits instr[24:20]          rs2                     
     .Rd_Addr_i          (instr[11:7]),      // 5 bits instr[11:7]           rd
@@ -269,29 +271,29 @@ MUX32 MUX_PC(       //left mux32
 );
 
 
-Hazard_Detection_Unit Hazard_Detection_Unit(
-    .MemRead_i (IDEX_MemRead),   
-    .RDaddr_i  (IDEX_instr[11:7]),    
-    .IFID_RS_i (IFID_instr[19:15]), 
-    .IFID_RT_i (IFID_instr[24:20]), 
-    .No_Op_o   (NoOp),         
-    .PCWrite_o (PCWrite),       
+Hazard_Detection Hazard_Detection(
+    .MemRead (IDEX_MemRead),   
+    .rd  (IDEX_instr[11:7]),    
+    .RS1addr_i (IFID_instr[19:15]), 
+    .RS2addr_i (IFID_instr[24:20]), 
+    .NoOp   (NoOp),         
+    .PCWrite (PCWrite),       
     .Stall_o   (stall)          
 );
 
-Forward_Unit Forward_Unit(
+Forwarding_Unit Forward_Unit(
     //from ID/EX
     .EX_Rs1_i       (ExRs1),
     .EX_Rs2_i       (ExRs1),
+    .MEM_Rd_i       (EXMEM_IDEX_instr[11:7]),     
+    .MEM_Regwrite_i (EXMEM_RegWrite),    
     .WB_Rd_i        (MEMWB_EXMEM_IDEX_instr[11:7]),      
     .WB_RegWrite_i  (MEMWB_RegWrite),
-    .MEM_Regwrite_i (EXMEM_RegWrite),    
-    .MEM_Rd_i       (EXMEM_IDEX_instr[11:7]),     
     .Forward_A_o    (ForwardA),     
     .Forward_B_o    (ForwardB)      
 );
 
-Forward_MUX Forward_MUX(      //for ForwardA    //top MUX4    ok
+MUX32_4 Forward_MUX1(      //for ForwardA    //top MUX4    ok
     .read_data_i    (IDEX_RS1data),         //read_data1 00
     .WB_Write_Data_i(WB_Write_Data),         //01
     .MEM_ALU_Result (EXMEM_ALU_data),         //10
@@ -299,7 +301,7 @@ Forward_MUX Forward_MUX(      //for ForwardA    //top MUX4    ok
     .mux_o          (muxA_o)          //mux output -> alu
 );    
 
-Forward_MUX Forward_MUX(      //for ForwardB     //bottom MUX4    ok
+MUX32_4 Forward_MUX2(      //for ForwardB     //bottom MUX4    ok
     .read_data_i    (IDEX_RS2data),         //read_data1 00
     .WB_Write_Data_i(WB_Write_Data),         //01
     .MEM_ALU_Result (EXMEM_ALU_data),         //10
@@ -308,4 +310,3 @@ Forward_MUX Forward_MUX(      //for ForwardB     //bottom MUX4    ok
 );    
 ////////////////////////////////////////////////////////
 endmodule
-

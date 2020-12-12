@@ -17,9 +17,10 @@ input [4:0] WB_Rd_i;
 output [1:0] Forward_A_o;
 output [1:0] Forward_B_o;
 reg 		flag_A;
-reg 		flaf_B;
+reg 		flag_B;
+reg [1:0] Forward_A_o,Forward_B_o;
 
-always @(EX_Rs1_i or EX_Rs2_i or MEM_RegWirte or MEM_Rd_i or WB_Rd_i or WB_RegWrite_i) begin
+always @(EX_Rs1_i or EX_Rs2_i or MEM_RegWrite_i or MEM_Rd_i or WB_Rd_i or WB_RegWrite_i) begin
 	Forward_A_o = 2'b00;
 	Forward_B_o = 2'b00;
 	flag_A = 1'b0;
