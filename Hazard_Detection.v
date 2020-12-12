@@ -1,4 +1,4 @@
-module Registers
+module Hazard_Detection
 (
     RS1addr_i,
     RS2addr_i,
