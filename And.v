@@ -1,4 +1,4 @@
-module Control(
+module And(
 	data1_i,
 	data2_i,
 	data_o
