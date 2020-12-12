@@ -25,22 +25,22 @@ always @(EX_Rs1_i or EX_Rs2_i or MEM_RegWirte or MEM_Rd_i or WB_Rd_i or WB_RegWr
 	flag_A = 1'b0;
 	flag_B = 1'b0;
 	// EX hazard, instruction distance = 1
-	if(MEM_RegWrite_i and (MEM_Rd_i != 0) and (EX_Rs1_i == MEM_Rd_i)) begin
+	if(MEM_RegWrite_i && (MEM_Rd_i != 0) && (EX_Rs1_i == MEM_Rd_i)) begin
 		Forward_A_o = 2'b10;
 		flag_A = 1'b1;
 	end	
 
-	if(MEM_RegWrite_i and (MEM_Rd_i != 0) and (EX_Rs2_i == MEM_Rd_i)) begin
+	if(MEM_RegWrite_i && (MEM_Rd_i != 0) && (EX_Rs2_i == MEM_Rd_i)) begin
 		Forward_B_o = 2'b10;
 		flag_B = 1'b1;
 	end	
 
 	// MEM hazard, instruction distance = 2
-	if(WB_RegWrite_i and (WB_Rd_i != 0) and (flag_A == 0) and (EX_Rs1_i == WB_Rd_i)) begin
+	if(WB_RegWrite_i && (WB_Rd_i != 0) && (flag_A == 0) && (EX_Rs1_i == WB_Rd_i)) begin
 		Forward_A_o = 2'b01;
 	end
 
-	if(WB_RegWrite_i and (WB_Rd_i != 0) and (flag_B == 0) and (EX_Rs2_i == WB_Rd_i)) begin
+	if(WB_RegWrite_i && (WB_Rd_i != 0) && (flag_B == 0) && (EX_Rs2_i == WB_Rd_i)) begin
 		Forward_B_o = 2'b01;
 	end
 end
