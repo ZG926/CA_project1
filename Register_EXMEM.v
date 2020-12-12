@@ -28,9 +28,9 @@ input   [31:0]      ALU_Result_i, MemWrite_Data_i;
 input   [4:0]       Rd_Addr_i;
 input RegWrite_i, MemToReg_i, MemRead_i, MemWrite_i;  
 
-output   [31:0]      ALU_Result_0, MemWrite_Data_0;
-output   [4:0]       Rd_Addr_0;
-output RegWrite_0, MemToReg_0, MemRead_0, MemWrite_0;  
+output   [31:0]      ALU_Result_o, MemWrite_Data_o;
+output   [4:0]       Rd_Addr_o;
+output RegWrite_o, MemToReg_o, MemRead_o, MemWrite_o;  
 
 reg   [31:0]      ALU_Result_o, MemWrite_Data_o;
 reg   [4:0]       Rd_Addr_o;
