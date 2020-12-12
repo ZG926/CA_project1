@@ -38,21 +38,21 @@ module Register_IDEX (
 input clk_i, start_i;
 input [31:0] RS1Data_i, RS2Data_i, SignExtended_i;
 input [9:0] funct_i;
-input [4:0] RS1Addr_i, RS2Addr_i,Rd_Addr_i;
+input [4:0] RS1_Addr_i, RS2_Addr_i,Rd_Addr_i;
 
 input [1:0] ALUOp_i;
 input RegWrite_i, MemToReg_i, MemRead_i, MemWrite_i, ALUSrc_i;	
 
 output [31:0] RS1Data_o, RS2Data_o, SignExtended_o;
 output [9:0] funct_o;
-output [4:0] RS1Addr_o, RS2Addr_o,Rd_Addr_o;
+output [4:0] RS1_Addr_o, RS2_Addr_o,Rd_Addr_o;
 
 output [1:0] ALUOp_o;
 output RegWrite_o, MemToReg_o, MemRead_o, MemWrite_o, ALUSrc_o;	
 
 reg [31:0] RS1Data_o, RS2Data_o, SignExtended_o;
 reg [9:0] funct_o;
-reg [4:0] RS1Addr_o, RS2Addr_o,Rd_Addr;
+reg [4:0] RS1_Addr_o, RS2_Addr_o,Rd_Addr_o;
 
 reg [1:0] ALUOp_o;
 reg RegWrite_o, MemToReg_o, MemRead_o, MemWrite_o, ALUSrc_o;	
@@ -62,8 +62,8 @@ always @(posedge clk_i) begin
 		RS1Data_o 		    <= RS1Data_i;
 		RS2Data_o 		    <= RS2Data_i;
 		SignExtended_o 	    <= SignExtended_i;
-		RS1Addr_o			<= RS1Addr_i;
-		RS2Addr_o			<= RS2Addr_i;
+		RS1_Addr_o			<= RS1_Addr_i;
+		RS2_Addr_o			<= RS2_Addr_i;
 		funct_o				<= funct_i;
 		Rd_Addr_o       	<= Rd_Addr_i;
 	
@@ -79,8 +79,8 @@ always @(posedge clk_i) begin
 		RS1Data_o 		    <= RS1Data_o;
 		RS2Data_o 		    <= RS2Data_o;
 		SignExtended_o 	    <= SignExtended_o;
-		RS1Addr_o			<= RS1Addr_o;
-		RS2Addr_o			<= RS2Addr_o;
+		RS1_Addr_o			<= RS1_Addr_o;
+		RS2_Addr_o			<= RS2_Addr_o;
 		funct_o				<= funct_o;
 		Rd_Addr_o           <= Rd_Addr_o;
 	
